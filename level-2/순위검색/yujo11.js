@@ -4,52 +4,102 @@
 // 언어 and 직군 and 경력 and 소울푸드 and 점수
 
 // 풀이 1  : 정확도 O / 효율성 X
-const solution = (info, query) => {
-  info = info.map((result) => result.split(" "));
+// const solution = (info, query) => {
+//   info = info.map((result) => result.split(" "));
 
-  query = query.map((condition) =>
-    condition.split(" ").filter((word) => word !== "and")
-  );
+//   query = query.map((condition) =>
+//     condition.split(" ").filter((word) => word !== "and")
+//   );
 
+//   const result = [];
+
+//   for (let i = 0; i < query.length; i++) {
+//     let filteredInfo = info.filter(
+//       (result) => Number(result[4]) >= Number(query[i][4])
+//     );
+
+//     let count = 0;
+
+//     for (let j = 0; j < filteredInfo.length; j++) {
+//       if (query[i][0] !== filteredInfo[j][0] && query[i][0] !== "-") {
+//         continue;
+//       }
+
+//       if (query[i][1] !== filteredInfo[j][1] && query[i][1] !== "-") {
+//         continue;
+//       }
+
+//       if (query[i][2] !== filteredInfo[j][2] && query[i][2] !== "-") {
+//         continue;
+//       }
+
+//       if (query[i][3] !== filteredInfo[j][3] && query[i][3] !== "-") {
+//         continue;
+//       }
+
+//       count += 1;
+//     }
+
+//     result.push(count);
+//   }
+
+//   return result;
+// };
+
+// 풀이 2 : 정확도 O / 효율성 O
+
+const binarySearch = (arr, target) => {
+  let left = 0;
+  let right = arr.length;
+  while (left < right) {
+    let mid = Math.floor((left + right) / 2);
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid;
+  }
+  return left;
+};
+
+const solution = (infos, queries) => {
   const result = [];
+  const queryMap = {};
 
-  for (let i = 0; i < query.length; i++) {
-    let filteredInfo = info.filter(
-      (result) => Number(result[4]) >= Number(query[i][4])
-    );
+  for (let i = 0; i < infos.length; i++) {
+    const [language, position, career, food, score] = infos[i].split(" ");
 
-    let count = 0;
+    ["-", language].forEach((language) => {
+      ["-", position].forEach((position) => {
+        ["-", career].forEach((career) => {
+          ["-", food].forEach((food) => {
+            const key = language + position + career + food;
 
-    for (let j = 0; j < filteredInfo.length; j++) {
-      if (query[i][0] !== filteredInfo[j][0] && query[i][0] !== "-") {
-        continue;
-      }
+            if (queryMap[key]) queryMap[key].push(Number(score));
+            else queryMap[key] = [Number(score)];
+          });
+        });
+      });
+    });
+  }
 
-      if (query[i][1] !== filteredInfo[j][1] && query[i][1] !== "-") {
-        continue;
-      }
+  for (const [key, value] of Object.entries(queryMap)) {
+    [(queryMap[key] = value.sort((a, b) => a - b))];
+  }
 
-      if (query[i][2] !== filteredInfo[j][2] && query[i][2] !== "-") {
-        continue;
-      }
+  for (const query of queries) {
+    const queryList = query.split(" ").filter((str) => str !== "and");
 
-      if (query[i][3] !== filteredInfo[j][3] && query[i][3] !== "-") {
-        continue;
-      }
+    const score = queryList.pop();
+    const key = queryList.join("");
 
-      count += 1;
+    if (queryMap[key]) {
+      const index = binarySearch(queryMap[key], Number(score));
+
+      result.push(queryMap[key].length - index);
+    } else {
+      result.push(0);
     }
-
-    result.push(count);
   }
 
   return result;
-};
-
-// 풀이 2
-
-const solution = (info, query) => {
-  //
 };
 
 // test code
